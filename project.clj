@@ -1,4 +1,4 @@
-(defproject cache-registry "0.8.0"
+(defproject cache-registry "1.0.0"
   :description "Cache once, fail on filesystem registry"
   :url "https://github.com/brennonyork/cache-registry"
   :license {:name "Eclipse Public License"
@@ -12,5 +12,4 @@
                  [org.apache.commons/commons-lang3 "3.1"]
                  [org.apache.hadoop/hadoop-core "1.0.4"]
                  [log4j "1.2.16"]]
-  :aliases {"docs" "javadoc"}
-  )
+  :aliases {"docs" "javadoc"})
