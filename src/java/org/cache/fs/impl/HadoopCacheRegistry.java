@@ -25,17 +25,17 @@ public class HadoopCacheRegistry extends CacheRegistry {
   private FileStatus _stat = null;
 
   public HadoopCacheRegistry() throws IOException {
-      this(new Configuration());
+    this(new Configuration());
   }
 
   public HadoopCacheRegistry(Configuration conf) throws IOException {
-      super();
+    super();
 
-      try {
-	  _fs = FileSystem.get(conf);
-      } catch(IOException e) {
-	  throw new IOException("Could not retrieve a FileSystem object given the configuration file; error at: "+e.getLocalizedMessage());
-      }
+    try {
+      _fs = FileSystem.get(conf);
+    } catch(IOException e) {
+      throw new IOException("Could not retrieve a FileSystem object given the configuration file; error at: "+e.getLocalizedMessage());
+    }
   }
 
   public void close() {
@@ -49,23 +49,23 @@ public class HadoopCacheRegistry extends CacheRegistry {
   }
 
   public Boolean isFile(String path) {
-      try {
-	  _stat = _fs.getFileStatus(new Path(path));
-	  return !_stat.isDir();
-      } catch(IOException e) {
-	  log.warn("Could not get FileStatus object from path "+path+" as file (does it exist?); error at: "+e.getLocalizedMessage());
-      }
+    try {
+      _stat = _fs.getFileStatus(new Path(path));
+      return !_stat.isDir();
+    } catch(IOException e) {
+      log.warn("Could not get FileStatus object from path "+path+" as file (does it exist?); error at: "+e.getLocalizedMessage());
+    }
 
     return null;
   }
 
   public Boolean isDirectory(String path) {
-      try {
-	  _stat = _fs.getFileStatus(new Path(path));
-	  return _stat.isDir();
-      } catch(IOException e) {
-	  log.warn("Could not get FileStatus object from path "+path+" as directory (does it exist?); error at: "+e.getLocalizedMessage());
-      }
+    try {
+      _stat = _fs.getFileStatus(new Path(path));
+      return _stat.isDir();
+    } catch(IOException e) {
+      log.warn("Could not get FileStatus object from path "+path+" as directory (does it exist?); error at: "+e.getLocalizedMessage());
+    }
 
     return null;
   }
@@ -74,7 +74,7 @@ public class HadoopCacheRegistry extends CacheRegistry {
     try {
       return new HadoopFile(path, _fs);
     } catch(IOException e) {
-	log.error("Could not register path "+path+" as file; error at: "+e.getLocalizedMessage());
+      log.error("Could not register path "+path+" as file; error at: "+e.getLocalizedMessage());
     }
 
     return null;
@@ -84,7 +84,7 @@ public class HadoopCacheRegistry extends CacheRegistry {
     try {
       return new HadoopDirectory(path, _fs);
     } catch(IOException e) {
-	log.error("Could not register path "+path+" as directory; error at: "+e.getLocalizedMessage());
+      log.error("Could not register path "+path+" as directory; error at: "+e.getLocalizedMessage());
     }
 
     return null;
@@ -108,7 +108,7 @@ public class HadoopCacheRegistry extends CacheRegistry {
       }
 
       if(_stat.isDir()) {
-	  throw new IOException("Attempted to create a CachedFile, but was given a directory path at "+path+".");
+        throw new IOException("Attempted to create a CachedFile, but was given a directory path at "+path+".");
       }
 
       _lastModTime = _stat.getModificationTime();
@@ -122,28 +122,28 @@ public class HadoopCacheRegistry extends CacheRegistry {
       }
     }
 
-      public void setStaleFlag() {
-	  _lastModTime = _stat.getModificationTime();
+    public void setStaleFlag() {
+      _lastModTime = _stat.getModificationTime();
+    }
+
+    public InputStream cachedInputStream() {
+      if(_fStream == null) {
+        log.warn("Attempting to retrieve a cached input stream when none was opened; will attempt to open.");
+
+        try {
+          _fStream = _fs.open(_path);
+        } catch(IOException e) {
+          log.error("Could not open file "+_path+"; error at: "+e.getLocalizedMessage());
+          _fStream = null;
+        }
       }
 
-      public InputStream cachedInputStream() {
-	  if(_fStream == null) {
-	      log.warn("Attempting to retrieve a cached input stream when none was opened; will attempt to open.");
-
-	      try {
-		  _fStream = _fs.open(_path);
-	      } catch(IOException e) {
-		  log.error("Could not open file "+_path+"; error at: "+e.getLocalizedMessage());
-		  _fStream = null;
-	      }
-	  }
-
-	  return _fStream;
-      }
+      return _fStream;
+    }
 
     public InputStream open() {
       if(_fStream != null) {
-	log.warn("Attempting to open a previously opened file with name "+_path+"; should be using the cachedInputStream method.");
+        log.warn("Attempting to open a previously opened file with name "+_path+"; should be using the cachedInputStream method.");
       } else {
         try {
           _fStream = _fs.open(_path);
@@ -158,7 +158,7 @@ public class HadoopCacheRegistry extends CacheRegistry {
 
     public InputStream open(int bufferSize) {
       if(_fStream != null) {
-	log.warn("Attempting to open a previously opened file with name "+_path+"; should be using the cachedInputStream method.");
+        log.warn("Attempting to open a previously opened file with name "+_path+"; should be using the cachedInputStream method.");
       } else {
         try {
           _fStream = _fs.open(_path, bufferSize);
@@ -203,28 +203,28 @@ public class HadoopCacheRegistry extends CacheRegistry {
       }
 
       if(!_stat.isDir()) {
-	  throw new IOException("Attempted to create a CachedDirectory, but was given a file path at "+path+".");
+        throw new IOException("Attempted to create a CachedDirectory, but was given a file path at "+path+".");
       }
 
       _lastModTime = _stat.getModificationTime();
     }
 
-      public List<String> list() {
-	  List<String> paths = new ArrayList<String>();
-	  FileStatus[] files = null;
+    public List<String> list() {
+      List<String> paths = new ArrayList<String>();
+      FileStatus[] files = null;
 
-	  try {
-	      _fs.listStatus(_path);
-	  } catch(IOException e) {
-	      // TODO: Handle error
-	  }
-
-	  for(FileStatus f : files) {
-	      paths.add(f.getPath().toString());
-	  }
-
-	  return paths;
+      try {
+        files = _fs.listStatus(_path);
+      } catch(IOException e) {
+        log.error("Could not determine files for directory "+path"; error at: "+e.getLocalizedMessage());
       }
+
+      for(FileStatus f : files) {
+        paths.add(f.getPath().toString());
+      }
+
+      return paths;
+    }
 
     public boolean isStale() {
       if(_lastModTime != _stat.getModificationTime()) {
@@ -234,8 +234,8 @@ public class HadoopCacheRegistry extends CacheRegistry {
       }
     }
 
-      public void setStaleFlag() {
-	  _lastModTime = _stat.getModificationTime();
-      }
+    public void setStaleFlag() {
+      _lastModTime = _stat.getModificationTime();
+    }
   }
 }
