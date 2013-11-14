@@ -12,4 +12,5 @@
                  [org.apache.commons/commons-lang3 "3.1"]
                  [org.apache.hadoop/hadoop-core "1.0.4"]
                  [log4j "1.2.16"]]
-  :aliases {"docs" "javadoc"})
+  :aliases {"docs" "javadoc"
+            "fresh" ["do" "clean," "uberjar"]})

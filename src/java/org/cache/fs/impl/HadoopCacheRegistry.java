@@ -216,7 +216,7 @@ public class HadoopCacheRegistry extends CacheRegistry {
       try {
         files = _fs.listStatus(_path);
       } catch(IOException e) {
-        log.error("Could not determine files for directory "+path"; error at: "+e.getLocalizedMessage());
+        log.error("Could not determine files for directory "+_path+"; error at: "+e.getLocalizedMessage());
       }
 
       for(FileStatus f : files) {
