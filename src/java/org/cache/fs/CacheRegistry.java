@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.HashMap;
 
 import java.io.InputStream;
@@ -84,7 +85,7 @@ public abstract class CacheRegistry {
 
     registry.put(path, registeredPath);
 
-    log.debug("Successfully registered path: "+path+".");
+    log.debug("Successfully registered path "+path+".");
 
     return path;
   }
@@ -229,12 +230,15 @@ public abstract class CacheRegistry {
      * Remove the path from the monitored list and close it if a file
      */
   public void unregister(String path) {
-    if(isFile(path) &&
-       _fileRegistry.containsKey(path)) {
+    if(StringUtils.isBlank(path)) {
+      logBadPath("unregister");
+      return;
+    }
+
+    if(_fileRegistry.containsKey(path)) {
       _fileRegistry.get(path).close();
       _fileRegistry.remove(path);
-    } else if(isDirectory(path) &&
-             _directoryRegistry.containsKey(path)) {
+    } else if(_directoryRegistry.containsKey(path)) {
       _directoryRegistry.remove(path);
     } else {
       logBadType(path);
@@ -243,11 +247,15 @@ public abstract class CacheRegistry {
     return;
   }
 
-  /**
-     * Close all paths registered with the system
-     */
-  public void close() {
-    // TODO: Complete method
+  public void destroy() {
+    for(Entry<String,CachedFile> kv : _fileRegistry.entrySet()) {
+      kv.getValue().close();
+    }
+
+    _fileRegistry.clear();
+    _directoryRegistry.clear();
+
+    close();
 
     return;
   }
@@ -289,6 +297,10 @@ public abstract class CacheRegistry {
     log.error("Attempted to register path as "+regType+", but failed"+regErrStr(path));
   }
 
+  /**
+     * Close any resources instantiated with the CacheRegistry object
+     */
+  protected abstract void close();
   protected abstract Boolean isFile(String path);
   protected abstract Boolean isDirectory(String path);
   protected abstract CachedFile registerFile(String path);

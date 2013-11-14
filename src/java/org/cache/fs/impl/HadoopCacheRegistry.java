@@ -38,6 +38,16 @@ public class HadoopCacheRegistry extends CacheRegistry {
       }
   }
 
+  public void close() {
+    try {
+      _fs.close();
+    } catch(IOException e) {
+      log.error("Could not close the FileSystem object");
+    }
+
+    return;
+  }
+
   public Boolean isFile(String path) {
       try {
 	  _stat = _fs.getFileStatus(new Path(path));
@@ -45,7 +55,7 @@ public class HadoopCacheRegistry extends CacheRegistry {
       } catch(IOException e) {
 	  log.warn("Could not get FileStatus object from path "+path+" as file (does it exist?); error at: "+e.getLocalizedMessage());
       }
-      
+
     return null;
   }
 
@@ -56,7 +66,7 @@ public class HadoopCacheRegistry extends CacheRegistry {
       } catch(IOException e) {
 	  log.warn("Could not get FileStatus object from path "+path+" as directory (does it exist?); error at: "+e.getLocalizedMessage());
       }
-      
+
     return null;
   }
 
@@ -127,7 +137,7 @@ public class HadoopCacheRegistry extends CacheRegistry {
 		  _fStream = null;
 	      }
 	  }
-	  
+
 	  return _fStream;
       }
 
