@@ -27,6 +27,7 @@ public abstract class CacheRegistry {
 
   private Map<String,CachedFile> _fileRegistry = null;
   private Map<String,CachedDirectory> _directoryRegistry = null;
+  private Boolean _mkpath = false;
 
   public CacheRegistry() throws OutOfMemoryError {
     _fileRegistry = new HashMap<String,CachedFile>();
@@ -45,6 +46,13 @@ public abstract class CacheRegistry {
      * Register a new file or directory with the Registry
      */
   public String register(String path) {
+    return register(path, _mkpath);
+  }
+
+  /**
+     * Register a new file or directory with the Registry and set flag whether to create the path
+     */
+  public String register(String path, Boolean mkpath) {
     if(StringUtils.isBlank(path)) {
       logBadPath("register");
       return null;
@@ -54,13 +62,13 @@ public abstract class CacheRegistry {
       if(_fileRegistry.containsKey(path)) {
         return path;
       } else {
-        return assertRegister(path, _fileRegistry, registerFile(path));
+        return assertRegister(path, _fileRegistry, registerFile(path, mkpath));
       }
     } else if(isDirectory(path)) {
       if(_directoryRegistry.containsKey(path)) {
         return path;
       } else {
-        return assertRegister(path, _directoryRegistry, registerDirectory(path));
+        return assertRegister(path, _directoryRegistry, registerDirectory(path, mkpath));
       }
     } else {
       logBadType(path);
@@ -120,7 +128,7 @@ public abstract class CacheRegistry {
       } else {
         logUnregistered("directory", path);
 
-        if(assertRegister(path, _directoryRegistry, registerDirectory(path)) != null) {
+        if(assertRegister(path, _directoryRegistry, registerDirectory(path, _mkpath)) != null) {
           return _directoryRegistry.get(path).list();
         } else {
           logRegistrationFailed("directory", path);
@@ -152,7 +160,7 @@ public abstract class CacheRegistry {
       } else {
         logUnregistered("file", path);
 
-        if(assertRegister(path, _fileRegistry, registerFile(path)) != null) {
+        if(assertRegister(path, _fileRegistry, registerFile(path, _mkpath)) != null) {
           return _fileRegistry.get(path).isStale();
         } else {
           logRegistrationFailed("file", path);
@@ -165,7 +173,7 @@ public abstract class CacheRegistry {
       } else {
         logUnregistered("directory", path);
 
-        if(assertRegister(path, _directoryRegistry, registerDirectory(path)) != null) {
+        if(assertRegister(path, _directoryRegistry, registerDirectory(path, _mkpath)) != null) {
           return _directoryRegistry.get(path).isStale();
         } else {
           logRegistrationFailed("directory", path);
@@ -212,7 +220,7 @@ public abstract class CacheRegistry {
       } else {
         logUnregistered("file", path);
 
-        if(assertRegister(path, _fileRegistry, registerFile(path)) != null) {
+        if(assertRegister(path, _fileRegistry, registerFile(path, _mkpath)) != null) {
           return _fileRegistry.get(path).open();
         } else {
           logRegistrationFailed("file", path);
@@ -224,6 +232,13 @@ public abstract class CacheRegistry {
     }
 
     return null;
+  }
+
+  /**
+     * Set default behavior for any registry method called within the system
+     */
+  public void setRegistryCreation(Boolean mkpath) {
+    _mkpath = mkpath;
   }
 
   /**
@@ -315,20 +330,10 @@ public abstract class CacheRegistry {
   protected abstract Boolean isDirectory(String path);
 
   /**
-     * @return A CachedFile to register the file with the system, else null if an error occurred.
-     */
-  protected abstract CachedFile registerFile(String path);
-
-  /**
      * @param mkfile boolean value in whether the file should be created if it doesn't already exist
      * @return A CachedFile to register the file with the system, else null if an error occurred.
      */
   protected abstract CachedFile registerFile(String path, Boolean mkfile);
-
-  /**
-     * @return A CachedDirectory to register the directory with the system, else null if an error occurred.
-     */
-  protected abstract CachedDirectory registerDirectory(String path);
 
   /**
      * @param mkdir boolean value in whether the directory should be created if it doesn't already exist

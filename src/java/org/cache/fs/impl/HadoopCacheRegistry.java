@@ -68,10 +68,6 @@ public class HadoopCacheRegistry extends CacheRegistry {
     return null;
   }
 
-  public CachedFile registerFile(String path) {
-    return registerFile(path, false);
-  }
-
   public CachedFile registerFile(String path, Boolean mkfile) {
     _path = new Path(path);
 
@@ -108,10 +104,6 @@ public class HadoopCacheRegistry extends CacheRegistry {
     }
 
     return null;
-  }
-
-  public CachedDirectory registerDirectory(String path) {
-    return registerDirectory(path, false);
   }
 
   public CachedDirectory registerDirectory(String path, Boolean mkdir) {

@@ -1,4 +1,4 @@
-(defproject cache-registry "1.2.3"
+(defproject cache-registry "1.3.4"
   :description "Cache once, fail on filesystem registry"
   :url "https://github.com/brennonyork/cache-registry"
   :license {:name "Eclipse Public License"
