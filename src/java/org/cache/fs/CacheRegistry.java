@@ -301,8 +301,38 @@ public abstract class CacheRegistry {
      * Close any resources instantiated with the CacheRegistry object
      */
   protected abstract void close();
+
+  /**
+     * @return Either the boolean value of true or false if the path is a file, otherwise null
+     *         if an error has occurred.
+     */
   protected abstract Boolean isFile(String path);
+
+  /**
+     * @return Either the boolean value of true or false if the path is a directory, otherwise null
+     *         if an error has occurred.
+     */
   protected abstract Boolean isDirectory(String path);
+
+  /**
+     * @return A CachedFile to register the file with the system, else null if an error occurred.
+     */
   protected abstract CachedFile registerFile(String path);
+
+  /**
+     * @param mkfile boolean value in whether the file should be created if it doesn't already exist
+     * @return A CachedFile to register the file with the system, else null if an error occurred.
+     */
+  protected abstract CachedFile registerFile(String path, Boolean mkfile);
+
+  /**
+     * @return A CachedDirectory to register the directory with the system, else null if an error occurred.
+     */
   protected abstract CachedDirectory registerDirectory(String path);
+
+  /**
+     * @param mkdir boolean value in whether the directory should be created if it doesn't already exist
+     * @return A CachedDirectory to register the directory with the system, else null if an error occurred.
+     */
+  protected abstract CachedDirectory registerDirectory(String path, Boolean mkdir);
 }

@@ -22,7 +22,7 @@ public class HadoopCacheRegistry extends CacheRegistry {
   static Logger log = Logger.getLogger(HadoopCacheRegistry.class);
 
   private static FileSystem _fs = null;
-  private FileStatus _stat = null;
+  private Path _path = null;
 
   public HadoopCacheRegistry() throws IOException {
     this(new Configuration());
@@ -50,10 +50,9 @@ public class HadoopCacheRegistry extends CacheRegistry {
 
   public Boolean isFile(String path) {
     try {
-      _stat = _fs.getFileStatus(new Path(path));
-      return !_stat.isDir();
+      return _fs.isFile(new Path(path));
     } catch(IOException e) {
-      log.warn("Could not get FileStatus object from path "+path+" as file (does it exist?); error at: "+e.getLocalizedMessage());
+      log.warn("Could not determine file from path "+path+" (does it exist?); error at: "+e.getLocalizedMessage());
     }
 
     return null;
@@ -61,8 +60,7 @@ public class HadoopCacheRegistry extends CacheRegistry {
 
   public Boolean isDirectory(String path) {
     try {
-      _stat = _fs.getFileStatus(new Path(path));
-      return _stat.isDir();
+      return _fs.getFileStatus(new Path(path)).isDir();
     } catch(IOException e) {
       log.warn("Could not get FileStatus object from path "+path+" as directory (does it exist?); error at: "+e.getLocalizedMessage());
     }
@@ -71,6 +69,38 @@ public class HadoopCacheRegistry extends CacheRegistry {
   }
 
   public CachedFile registerFile(String path) {
+    return registerFile(path, false);
+  }
+
+  public CachedFile registerFile(String path, Boolean mkfile) {
+    _path = new Path(path);
+
+    if(mkfile) {
+      Boolean exists = null;
+
+      try {
+        exists = _fs.exists(_path);
+      } catch(IOException e) {
+        log.error("Could not determine if path "+path+" exists; error at: "+e.getLocalizedMessage());
+        return null;
+      }
+
+      if(!exists) {
+        try {
+          _fs.createNewFile(_path);
+        } catch(IOException e) {
+          log.error("Could not create file as path "+path+"; error at "+e.getLocalizedMessage());
+          return null;
+        }
+      }
+
+      return registerFile(_path);
+    } else {
+      return registerFile(_path);
+    }
+  }
+
+  private CachedFile registerFile(Path path) {
     try {
       return new HadoopFile(path, _fs);
     } catch(IOException e) {
@@ -81,6 +111,38 @@ public class HadoopCacheRegistry extends CacheRegistry {
   }
 
   public CachedDirectory registerDirectory(String path) {
+    return registerDirectory(path, false);
+  }
+
+  public CachedDirectory registerDirectory(String path, Boolean mkdir) {
+    _path = new Path(path);
+
+    if(mkdir) {
+      Boolean exists = null;
+
+      try {
+        exists = _fs.exists(_path);
+      } catch(IOException e) {
+        log.error("Could not determine if path "+path+" exists; error at: "+e.getLocalizedMessage());
+        return null;
+      }
+
+      if(!exists) {
+        try {
+          _fs.mkdirs(_path);
+        } catch(IOException e) {
+          log.error("Could not create file as path "+path+"; error at "+e.getLocalizedMessage());
+          return null;
+        }
+      }
+
+      return registerDirectory(_path);
+    } else {
+      return registerDirectory(_path);
+    }
+  }
+
+  private CachedDirectory registerDirectory(Path path) {
     try {
       return new HadoopDirectory(path, _fs);
     } catch(IOException e) {
@@ -97,8 +159,8 @@ public class HadoopCacheRegistry extends CacheRegistry {
     private InputStream _fStream = null;
     private long _lastModTime;
 
-    public HadoopFile(String path, FileSystem fs) throws IOException {
-      _path = new Path(path);
+    public HadoopFile(Path path, FileSystem fs) throws IOException {
+      _path = path;
       _fs = fs;
 
       try {
@@ -192,8 +254,8 @@ public class HadoopCacheRegistry extends CacheRegistry {
     private FileStatus _stat = null;
     private long _lastModTime;
 
-    public HadoopDirectory(String path, FileSystem fs) throws IOException {
-      _path = new Path(path);
+    public HadoopDirectory(Path path, FileSystem fs) throws IOException {
+      _path = path;
       _fs = fs;
 
       try {
