@@ -123,7 +123,7 @@ public class HadoopCacheRegistry extends CacheRegistry {
         try {
           _fs.mkdirs(_path);
         } catch(IOException e) {
-          log.error("Could not create file as path "+path+"; error at "+e.getLocalizedMessage());
+          log.error("Could not create directory as path "+path+"; error at "+e.getLocalizedMessage());
           return null;
         }
       }

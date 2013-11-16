@@ -1,6 +1,6 @@
 (ns cache-registry.core-test
-  (:require [clojure.test :refer :all]
-            [cache-registry.core :refer :all]))
+  (:import [org.cache.fs.impl HadoopCacheRegistry])
+  (:require [clojure.test :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."
