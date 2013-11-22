@@ -62,7 +62,12 @@ public abstract class CacheRegistry {
       if(_fileRegistry.containsKey(path)) {
         return path;
       } else {
-        return assertRegister(path, _fileRegistry, registerFile(path, mkpath));
+        if(assertRegister(path, _fileRegistry, registerFile(path, mkpath)) != null) {
+          _fileRegistry.get(path).open();
+          return path;
+        } else {
+          return null;
+        }
       }
     } else if(isDirectory(path)) {
       if(_directoryRegistry.containsKey(path)) {
