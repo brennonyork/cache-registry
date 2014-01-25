@@ -49,7 +49,7 @@ public class LocalCacheRegistry extends CacheRegistry {
     _path = new File(FilenameUtils.getPath(newPath));
 
     if(mkfile && !_path.exists()) {
-      _path.mkdir();
+      _path.mkdirs();
     }
 
     if(isDirectory(newPath) ||
@@ -85,7 +85,7 @@ public class LocalCacheRegistry extends CacheRegistry {
     }
 
     if(mkdir && !_path.exists()) {
-      _path.mkdir();
+      _path.mkdirs();
     }
 
     _path = new File(newPath);
@@ -133,7 +133,7 @@ public class LocalCacheRegistry extends CacheRegistry {
     _path = new File(path);
 
     if(mkdir && !_path.exists()) {
-      _path.mkdir();
+      _path.mkdirs();
     }
 
     return registerDirectory(_path);
