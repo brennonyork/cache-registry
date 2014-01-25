@@ -1,10 +1,14 @@
 # cache-registry
 
-A Clojure library designed to ... well, that part is up to you.
+A simplified java library to act as an in-memory cache for filesystem objects. Useful for distributed applications such as Storm.
 
 ## Usage
 
-FIXME
+Currently there are two core implementations, the HadoopCacheRegistry and the LocalCacheRegistry, for Hadoop and the local filesystem respectively.
+
+## Bugs
+
+If any bugs are found please email or submit a pull request!
 
 ## License
 
