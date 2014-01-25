@@ -148,6 +148,58 @@ public abstract class CacheRegistry {
   }
 
   /**
+     * Move a file into the new path
+     *
+     * @param currPath a file path, cannot be a directory
+     * @param newPath the file or directory with which to be renamed or placed into
+     *
+     * @return the newPath if successful, else null for any errors
+     */
+  public String move(String currPath, String newPath) {
+    if(StringUtils.isBlank(currPath) ||
+       StringUtils.isBlank(newPath)) {
+      logBadPath("move");
+      return null;
+    }
+
+    if(isFile(currPath)) {
+      if(_fileRegistry.containsKey(currPath)) {
+        unregister(currPath);
+      }
+      if(moveFile(currPath, newPath, _mkpath) != null) {
+        if(assertRegister(newPath, _fileRegistry, registerFile(newPath, _mkpath)) != null) {
+          return newPath;
+        } else {
+          logRegistrationFailed("file", newPath);
+          return null;
+        }
+      } else {
+        logBadMove("file",currPath,newPath);
+        return null;
+      }
+    } else if(isDirectory(currPath)) {
+      if(_directoryRegistry.containsKey(currPath)) {
+        unregister(currPath);
+      }
+      if(moveDirectory(currPath, newPath, _mkpath) != null) {
+        if(assertRegister(newPath, _directoryRegistry, registerDirectory(newPath, _mkpath)) != null) {
+          return newPath;
+        } else {
+          logRegistrationFailed("directory", newPath);
+          return null;
+        }
+      } else {
+        logBadMove("directory",currPath,newPath);
+        return null;
+      }
+    } else {
+      logBadType(currPath);
+    }
+
+    return null;
+  }
+
+  /**
      * Check if any changes have occurred to the path specified.
      *
      * This is useful for applications leveraging a CacheRegistry and using it to load or
@@ -267,6 +319,9 @@ public abstract class CacheRegistry {
     return;
   }
 
+  /**
+     * Closes all files associated with the CacheRegistry instance and clears all registries
+     */
   public void destroy() {
     for(Entry<String,CachedFile> kv : _fileRegistry.entrySet()) {
       kv.getValue().close();
@@ -302,6 +357,13 @@ public abstract class CacheRegistry {
   }
 
   /**
+     * Generate a common log when the move of a file or directory fails
+     */
+  private void logBadMove(String regType, String currPath, String newPath) {
+    log.warn("Cannot move "+regType+" from "+currPath+" to "+newPath+".");
+  }
+
+  /**
      * Generate a common unregistered lookup error string given the path and registry type for
      * all log messages
      */
@@ -333,6 +395,26 @@ public abstract class CacheRegistry {
      *         if an error has occurred.
      */
   protected abstract Boolean isDirectory(String path);
+
+  /**
+     * Moves a file from the current path into the new path provided
+     *
+     * @param currPath current path of file
+     * @param newPath new path for file
+     * @param mkfile flag whether to create the path to the file or not
+     * @return the newPath if successful, else null
+     */
+  protected abstract String moveFile(String currPath, String newPath, Boolean mkfile);
+
+  /**
+     * Moves a directory from the current path into the new path provided
+     *
+     * @param currPath current path of directory
+     * @param newPath new path for the directory
+     * @param mkfile flag whether to create the path to the directory or not
+     * @return the newPath if successful, else null
+     */
+  protected abstract String moveDirectory(String currPath, String newPath, Boolean mkdir);
 
   /**
      * @param mkfile boolean value in whether the file should be created if it doesn't already exist

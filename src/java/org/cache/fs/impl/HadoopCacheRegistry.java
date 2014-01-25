@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -66,6 +69,96 @@ public class HadoopCacheRegistry extends CacheRegistry {
     }
 
     return null;
+  }
+
+  /**
+     * newPath can come in as:
+     *   - a.txt      ->> file
+     *   - a/b/c      ->> if present and directory, directory; else file
+     *   - a/b/c/     ->> directory
+     *   - /b/c/a.txt ->> file
+     */
+  public String moveFile(String currPath, String newPath, Boolean mkfile) {
+    _path = new Path(FilenameUtils.getPath(newPath));
+
+    if(mkfile) {
+      Boolean exists = null;
+
+      try {
+        exists = _fs.exists(_path);
+      } catch(IOException e) {
+        log.error("Could not determine if path "+newPath+" exists; error at: "+e.getLocalizedMessage());
+        return null;
+      }
+
+      try {
+        _fs.mkdirs(_path);
+      } catch(IOException e) {
+        log.error("Could not create file as path "+newPath+"; error at "+e.getLocalizedMessage());
+        return null;
+      }
+    }
+
+    if(isDirectory(newPath) ||
+       StringUtils.isBlank(FilenameUtils.getName(newPath))) {
+      // We have a directory
+      _path = new Path(_path, FilenameUtils.getName(currPath));
+    } else {
+      _path = new Path(newPath);
+    }
+
+    try {
+      _fs.rename(new Path(currPath), _path);
+    } catch(IOException e) {
+      log.error("Could not rename file from "+currPath+" to "+_path.toString()+"; error at "+e.getLocalizedMessage());
+      return null;
+    }
+
+    return _path.toString();
+  }
+
+  /**
+     * newPath can come in as:
+     *   - a.txt      ->> file
+     *   - a/b/c      ->> file
+     *   - a/b/c/     ->> directory
+     *   - /b/c/a.txt ->> file
+     */
+  public String moveDirectory(String currPath, String newPath, Boolean mkdir) {
+    if(StringUtils.isBlank(FilenameUtils.getName(newPath))) {
+      _path = new Path(FilenameUtils.getPath(FilenameUtils.getFullPathNoEndSeparator(newPath)));
+    } else {
+      _path = new Path(FilenameUtils.getPath(newPath));
+    }
+
+    if(mkdir) {
+      Boolean exists = null;
+
+      try {
+        exists = _fs.exists(_path);
+      } catch(IOException e) {
+        log.error("Could not determine if path "+_path.toString()+" exists; error at: "+e.getLocalizedMessage());
+        return null;
+      }
+
+      try {
+        _fs.mkdirs(_path);
+      } catch(IOException e) {
+        log.error("Could not create file as path "+_path.toString()+"; error at "+e.getLocalizedMessage());
+        return null;
+      }
+    }
+
+    _path = new Path(newPath);
+
+    try {
+      _fs.rename(new Path(currPath), _path);
+    } catch(IOException e) {
+      log.error("Could not rename file from "+currPath+" to "+newPath+"; error at "+e.getLocalizedMessage());
+      return null;
+    }
+
+    return _path.toString();
   }
 
   public CachedFile registerFile(String path, Boolean mkfile) {

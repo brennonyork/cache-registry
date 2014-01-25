@@ -9,6 +9,9 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import org.apache.log4j.Logger;
 
 import org.cache.fs.CacheRegistry;
@@ -33,6 +36,68 @@ public class LocalCacheRegistry extends CacheRegistry {
 
   public Boolean isDirectory(String path) {
     return new File(path).isDirectory();
+  }
+
+  /**
+     * newPath can come in as:
+     *   - a.txt      ->> file
+     *   - a/b/c      ->> file
+     *   - a/b/c/     ->> directory
+     *   - /b/c/a.txt ->> file
+     */
+  public String moveFile(String currPath, String newPath, Boolean mkfile) {
+    _path = new File(FilenameUtils.getPath(newPath));
+
+    if(mkfile && !_path.exists()) {
+      _path.mkdir();
+    }
+
+    if(isDirectory(newPath) ||
+       StringUtils.isBlank(FilenameUtils.getName(newPath))) {
+      // We have a directory
+      _path = new File(_path, FilenameUtils.getName(currPath));
+    } else {
+      _path = new File(newPath);
+    }
+
+    try {
+      (new File(currPath)).renameTo(_path);
+    } catch(Exception e) {
+      log.error("Could not rename file from "+currPath+" to "+newPath+"; error at "+e.getLocalizedMessage());
+      return null;
+    }
+
+    return _path.toString();
+  }
+
+  /**
+     * newPath can come in as:
+     *   - a.txt      ->> file
+     *   - a/b/c      ->> file
+     *   - a/b/c/     ->> directory
+     *   - /b/c/a.txt ->> file
+     */
+  public String moveDirectory(String currPath, String newPath, Boolean mkdir) {
+    if(StringUtils.isBlank(FilenameUtils.getName(newPath))) {
+      _path = new File(FilenameUtils.getPath(FilenameUtils.getFullPathNoEndSeparator(newPath)));
+    } else {
+      _path = new File(FilenameUtils.getPath(newPath));
+    }
+
+    if(mkdir && !_path.exists()) {
+      _path.mkdir();
+    }
+
+    _path = new File(newPath);
+
+    try {
+      (new File(currPath)).renameTo(_path);
+    } catch(Exception e) {
+      log.error("Could not rename file from "+currPath+" to "+newPath+"; error at "+e.getLocalizedMessage());
+      return null;
+    }
+
+    return _path.toString();
   }
 
   public CachedFile registerFile(String path, Boolean mkfile) {
