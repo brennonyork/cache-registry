@@ -43,43 +43,52 @@ public abstract class CacheRegistry {
   }
 
   /**
-     * Register a new file or directory with the Registry
+     * Register a new file with the Registry
      */
-  public String register(String path) {
-    return register(path, _mkpath);
+  public String registerFile(String filePath) {
+    return registerFile(filePath, _mkpath);
   }
 
   /**
-     * Register a new file or directory with the Registry and set flag whether to create the path
+     * Register a new file with the Registry and create the path if set
      */
-  public String register(String path, Boolean mkpath) {
+  public String registerFile(String path, Boolean mkfile) {
     if(StringUtils.isBlank(path)) {
-      logBadPath("register");
+      logBadPath("registerFile");
       return null;
     }
 
-    if(isFile(path)) {
-      if(_fileRegistry.containsKey(path)) {
-        return path;
-      } else {
-        if(assertRegister(path, _fileRegistry, registerFile(path, mkpath)) != null) {
-          _fileRegistry.get(path).open();
-          return path;
-        } else {
-          return null;
-        }
-      }
-    } else if(isDirectory(path)) {
-      if(_directoryRegistry.containsKey(path)) {
-        return path;
-      } else {
-        return assertRegister(path, _directoryRegistry, registerDirectory(path, mkpath));
-      }
-    } else {
-      logBadType(path);
+    if(isFile(path) && _fileRegistry.containsKey(path)) {
+      return path;
+    } else if(assertRegister(path, _fileRegistry, registerCacheFile(path, mkfile)) != null) {
+      _fileRegistry.get(path).open();
+      return path;
     }
 
     return null;
+  }
+
+  /**
+     * Register a new directory with the Registry
+     */
+  public String registerDirectory(String dirPath) {
+    return registerDirectory(dirPath, _mkpath);
+  }
+
+  /**
+     * Register a new directory with the Registry and create the path if set
+     */
+  public String registerDirectory(String path, Boolean mkdir) {
+    if(StringUtils.isBlank(path)) {
+      logBadPath("registerDirectory");
+      return null;
+    }
+
+    if(isDirectory(path) && _directoryRegistry.containsKey(path)) {
+      return path;
+    } else {
+      return assertRegister(path, _directoryRegistry, registerCacheDirectory(path, mkdir));
+    }
   }
 
   /**
@@ -133,7 +142,7 @@ public abstract class CacheRegistry {
       } else {
         logUnregistered("directory", path);
 
-        if(assertRegister(path, _directoryRegistry, registerDirectory(path, _mkpath)) != null) {
+        if(assertRegister(path, _directoryRegistry, registerCacheDirectory(path, _mkpath)) != null) {
           return _directoryRegistry.get(path).list();
         } else {
           logRegistrationFailed("directory", path);
@@ -172,7 +181,7 @@ public abstract class CacheRegistry {
       actNewPath = moveFile(currPath, newPath, _mkpath);
 
       if(actNewPath != null) {
-        if(assertRegister(actNewPath, _fileRegistry, registerFile(actNewPath, _mkpath)) != null) {
+        if(assertRegister(actNewPath, _fileRegistry, registerCacheFile(actNewPath, _mkpath)) != null) {
           return actNewPath;
         } else {
           logRegistrationFailed("file", newPath);
@@ -190,7 +199,7 @@ public abstract class CacheRegistry {
       actNewPath = moveDirectory(currPath, newPath, _mkpath);
 
       if(actNewPath != null) {
-        if(assertRegister(actNewPath, _directoryRegistry, registerDirectory(actNewPath, _mkpath)) != null) {
+        if(assertRegister(actNewPath, _directoryRegistry, registerCacheDirectory(actNewPath, _mkpath)) != null) {
           return actNewPath;
         } else {
           logRegistrationFailed("directory", newPath);
@@ -225,7 +234,7 @@ public abstract class CacheRegistry {
       } else {
         logUnregistered("file", path);
 
-        if(assertRegister(path, _fileRegistry, registerFile(path, _mkpath)) != null) {
+        if(assertRegister(path, _fileRegistry, registerCacheFile(path, _mkpath)) != null) {
           return _fileRegistry.get(path).isStale();
         } else {
           logRegistrationFailed("file", path);
@@ -238,7 +247,7 @@ public abstract class CacheRegistry {
       } else {
         logUnregistered("directory", path);
 
-        if(assertRegister(path, _directoryRegistry, registerDirectory(path, _mkpath)) != null) {
+        if(assertRegister(path, _directoryRegistry, registerCacheDirectory(path, _mkpath)) != null) {
           return _directoryRegistry.get(path).isStale();
         } else {
           logRegistrationFailed("directory", path);
@@ -285,7 +294,7 @@ public abstract class CacheRegistry {
       } else {
         logUnregistered("file", path);
 
-        if(assertRegister(path, _fileRegistry, registerFile(path, _mkpath)) != null) {
+        if(assertRegister(path, _fileRegistry, registerCacheFile(path, _mkpath)) != null) {
           return _fileRegistry.get(path).open();
         } else {
           logRegistrationFailed("file", path);
@@ -428,11 +437,11 @@ public abstract class CacheRegistry {
      * @param mkfile boolean value in whether the file should be created if it doesn't already exist
      * @return A CachedFile to register the file with the system, else null if an error occurred.
      */
-  protected abstract CachedFile registerFile(String path, Boolean mkfile);
+  protected abstract CachedFile registerCacheFile(String path, Boolean mkfile);
 
   /**
      * @param mkdir boolean value in whether the directory should be created if it doesn't already exist
      * @return A CachedDirectory to register the directory with the system, else null if an error occurred.
      */
-  protected abstract CachedDirectory registerDirectory(String path, Boolean mkdir);
+  protected abstract CachedDirectory registerCacheDirectory(String path, Boolean mkdir);
 }

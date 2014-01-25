@@ -161,7 +161,7 @@ public class HadoopCacheRegistry extends CacheRegistry {
     return _path.toString();
   }
 
-  public CachedFile registerFile(String path, Boolean mkfile) {
+  public CachedFile registerCacheFile(String path, Boolean mkfile) {
     _path = new Path(path);
 
     if(mkfile) {
@@ -199,7 +199,7 @@ public class HadoopCacheRegistry extends CacheRegistry {
     return null;
   }
 
-  public CachedDirectory registerDirectory(String path, Boolean mkdir) {
+  public CachedDirectory registerCacheDirectory(String path, Boolean mkdir) {
     _path = new Path(path);
 
     if(mkdir) {
