@@ -156,6 +156,8 @@ public abstract class CacheRegistry {
      * @return the newPath if successful, else null for any errors
      */
   public String move(String currPath, String newPath) {
+    String actNewPath = null;
+
     if(StringUtils.isBlank(currPath) ||
        StringUtils.isBlank(newPath)) {
       logBadPath("move");
@@ -166,9 +168,12 @@ public abstract class CacheRegistry {
       if(_fileRegistry.containsKey(currPath)) {
         unregister(currPath);
       }
-      if(moveFile(currPath, newPath, _mkpath) != null) {
-        if(assertRegister(newPath, _fileRegistry, registerFile(newPath, _mkpath)) != null) {
-          return newPath;
+
+      actNewPath = moveFile(currPath, newPath, _mkpath);
+
+      if(actNewPath != null) {
+        if(assertRegister(actNewPath, _fileRegistry, registerFile(actNewPath, _mkpath)) != null) {
+          return actNewPath;
         } else {
           logRegistrationFailed("file", newPath);
           return null;
@@ -181,9 +186,12 @@ public abstract class CacheRegistry {
       if(_directoryRegistry.containsKey(currPath)) {
         unregister(currPath);
       }
-      if(moveDirectory(currPath, newPath, _mkpath) != null) {
-        if(assertRegister(newPath, _directoryRegistry, registerDirectory(newPath, _mkpath)) != null) {
-          return newPath;
+
+      actNewPath = moveDirectory(currPath, newPath, _mkpath);
+
+      if(actNewPath != null) {
+        if(assertRegister(actNewPath, _directoryRegistry, registerDirectory(actNewPath, _mkpath)) != null) {
+          return actNewPath;
         } else {
           logRegistrationFailed("directory", newPath);
           return null;
