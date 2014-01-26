@@ -239,7 +239,7 @@ public class LocalCacheRegistry extends CacheRegistry {
       List<String> paths = new ArrayList<String>();
 
       for(String path : Arrays.asList(_path.list())) {
-        paths.add(_path.getAbsolutePath().concat(path));
+        paths.add(_path.getAbsolutePath().concat(File.separator).concat(path));
       }
 
       return paths;
