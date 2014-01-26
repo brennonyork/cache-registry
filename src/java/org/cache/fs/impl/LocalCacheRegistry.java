@@ -104,8 +104,9 @@ public class LocalCacheRegistry extends CacheRegistry {
     _path = new File(path);
 
     if(mkfile) {
-      // Make all necessary directories up to the path in question
-      new File(FilenameUtils.getPath(path)).mkdirs();
+      if(!_path.getParentFile().exists()) {
+        _path.getParentFile().mkdirs();
+      }
 
       if(!_path.exists()) {
         try {
