@@ -182,6 +182,7 @@ public abstract class CacheRegistry {
 
       if(actNewPath != null) {
         if(assertRegister(actNewPath, _fileRegistry, registerCacheFile(actNewPath, _mkpath)) != null) {
+          _fileRegistry.get(actNewPath).open();
           return actNewPath;
         } else {
           logRegistrationFailed("file", newPath);
