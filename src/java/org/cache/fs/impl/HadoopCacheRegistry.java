@@ -51,14 +51,13 @@ public class HadoopCacheRegistry extends CacheRegistry {
       return _fs.isFile(new Path(path));
     } catch(IOException e) {
       log.warn("Could not determine file from path "+path+" (does it exist?); error at: "+e.getLocalizedMessage());
+      return false;
     }
-
-    return null;
   }
 
   public Boolean isDirectory(String path) {
     try {
-      return _fs.getFileStatus(new Path(path)).isDir();
+      return _fs.getFileStatus(new Path(path)).isDirectory();
     } catch(IOException e) {
       log.warn("Could not get FileStatus object from path "+path+" as directory (does it exist?); error at: "+e.getLocalizedMessage());
       return false;
@@ -248,7 +247,7 @@ public class HadoopCacheRegistry extends CacheRegistry {
         throw new IOException("Could not get FileStatus object from path "+_path+"; error at: "+e.getLocalizedMessage());
       }
 
-      if(_stat.isDir()) {
+      if(_stat.isDirectory()) {
         throw new IOException("Attempted to create a CachedFile, but was given a directory path at "+path+".");
       }
 
@@ -344,7 +343,7 @@ public class HadoopCacheRegistry extends CacheRegistry {
 	throw e;
       }
 
-      if(!_stat.isDir()) {
+      if(!_stat.isDirectory()) {
         throw new IOException("Attempted to create a CachedDirectory, but was given a file path at "+path+".");
       }
 
