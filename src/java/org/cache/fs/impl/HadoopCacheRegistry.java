@@ -33,12 +33,7 @@ public class HadoopCacheRegistry extends CacheRegistry {
 
   public HadoopCacheRegistry(Configuration conf) throws IOException {
     super();
-
-    try {
       _fs = FileSystem.get(conf);
-    } catch(IOException e) {
-      throw new IOException("Could not retrieve a FileSystem object given the configuration file; error at: "+e.getLocalizedMessage());
-    }
   }
 
   public void close() {
@@ -66,9 +61,8 @@ public class HadoopCacheRegistry extends CacheRegistry {
       return _fs.getFileStatus(new Path(path)).isDir();
     } catch(IOException e) {
       log.warn("Could not get FileStatus object from path "+path+" as directory (does it exist?); error at: "+e.getLocalizedMessage());
+      return false;
     }
-
-    return null;
   }
 
   /**
@@ -346,7 +340,8 @@ public class HadoopCacheRegistry extends CacheRegistry {
       try {
         _stat = _fs.getFileStatus(_path);
       } catch(IOException e) {
-        throw new IOException("Could not get FileStatus object from file "+_path+"; error at: "+e.getLocalizedMessage());
+	log.error("Could not get FileStatus object from file "+_path);
+	throw e;
       }
 
       if(!_stat.isDir()) {
