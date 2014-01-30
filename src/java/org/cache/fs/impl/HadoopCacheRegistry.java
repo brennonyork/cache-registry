@@ -57,17 +57,12 @@ public class HadoopCacheRegistry extends CacheRegistry {
   }
 
   public Boolean isDirectory(String path) {
-    Path path_obj = new Path(path);
-    if (!_fs.exists(path_obj)) {
-	return false;
-    }
     try {
-      return _fs.getFileStatus(path_obj).isDir();
+      return _fs.getFileStatus(new Path(path)).isDir();
     } catch(IOException e) {
       log.warn("Could not get FileStatus object from path "+path+" as directory (does it exist?); error at: "+e.getLocalizedMessage());
+      return false;
     }
-
-    return null;
   }
 
   /**
