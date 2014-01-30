@@ -6,9 +6,9 @@ A simplified java library to act as an in-memory cache for filesystem objects. U
 
 Currently there are two core implementations, the HadoopCacheRegistry and the LocalCacheRegistry, for Hadoop and the local filesystem respectively.
 
-## Bugs
+## Caveats
 
-If any bugs are found please email or submit a pull request!
+To work with the two divergent branches of Hadoop (1.x and 2.x) I've chosen, for the time being, to leave the Cache Registry 2.x version mapping to Hadoop 1.x and Cache Registry 3.x versions to map to Hadoop 2.x. As always, let me know if you have any issues!
 
 ## License
 

@@ -1,4 +1,4 @@
-(defproject cache-registry "2.0.6"
+(defproject cache-registry "3.0.0"
   :description "Cache once, fail on filesystem registry"
   :url "https://github.com/brennonyork/cache-registry"
   :license {:name "Eclipse Public License"
@@ -10,7 +10,8 @@
   :java-source-paths ["src/java"]
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.apache.commons/commons-lang3 "3.1"]
-                 [org.apache.hadoop/hadoop-core "1.0.4"]
+                 ;[org.apache.hadoop/hadoop-core "1.0.3"]
+                 [org.apache.hadoop/hadoop-common "2.2.0"]
                  [commons-io "2.4"]
                  [log4j "1.2.16"]]
   :aliases {"docs" "javadoc"
