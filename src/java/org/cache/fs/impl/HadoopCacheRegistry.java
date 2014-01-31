@@ -34,7 +34,7 @@ public class HadoopCacheRegistry extends CacheRegistry {
 
   public HadoopCacheRegistry(Configuration conf) throws IOException {
     super();
-      _fs = FileSystem.get(conf);
+		_fs = FileSystem.get(conf);
   }
 
   public void close() {
@@ -66,12 +66,12 @@ public class HadoopCacheRegistry extends CacheRegistry {
   }
 
   /**
-     * newPath can come in as:
-     *   - a.txt      ->> file
-     *   - a/b/c      ->> if present and directory, directory; else file
-     *   - a/b/c/     ->> directory
-     *   - /b/c/a.txt ->> file
-     */
+	 * newPath can come in as:
+	 *   - a.txt      ->> file
+	 *   - a/b/c      ->> if present and directory, directory; else file
+	 *   - a/b/c/     ->> directory
+	 *   - /b/c/a.txt ->> file
+	 */
   public String moveFile(String currPath, String newPath, Boolean mkfile) {
     _path = new Path(FilenameUtils.getFullPath(newPath));
 
@@ -112,12 +112,12 @@ public class HadoopCacheRegistry extends CacheRegistry {
   }
 
   /**
-     * newPath can come in as:
-     *   - a.txt      ->> file
-     *   - a/b/c      ->> file
-     *   - a/b/c/     ->> directory
-     *   - /b/c/a.txt ->> file
-     */
+	 * newPath can come in as:
+	 *   - a.txt      ->> file
+	 *   - a/b/c      ->> file
+	 *   - a/b/c/     ->> directory
+	 *   - /b/c/a.txt ->> file
+	 */
   public String moveDirectory(String currPath, String newPath, Boolean mkdir) {
     if(StringUtils.isBlank(FilenameUtils.getName(newPath))) {
       _path = new Path(FilenameUtils.getFullPath(FilenameUtils.getFullPathNoEndSeparator(newPath)));
@@ -340,8 +340,8 @@ public class HadoopCacheRegistry extends CacheRegistry {
       try {
         _stat = _fs.getFileStatus(_path);
       } catch(IOException e) {
-	log.error("Could not get FileStatus object from file "+_path);
-	throw e;
+				log.error("Could not get FileStatus object from file "+_path);
+				throw e;
       }
 
       if(!_stat.isDirectory()) {
