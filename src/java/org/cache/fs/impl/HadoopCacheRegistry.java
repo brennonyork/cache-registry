@@ -72,7 +72,7 @@ public class HadoopCacheRegistry extends CacheRegistry {
      *   - /b/c/a.txt ->> file
      */
   public String moveFile(String currPath, String newPath, Boolean mkfile) {
-    _path = new Path(FilenameUtils.getPath(newPath));
+    _path = new Path(FilenameUtils.getFullPath(newPath));
 
     if(mkfile) {
       Boolean exists = null;
@@ -119,9 +119,9 @@ public class HadoopCacheRegistry extends CacheRegistry {
      */
   public String moveDirectory(String currPath, String newPath, Boolean mkdir) {
     if(StringUtils.isBlank(FilenameUtils.getName(newPath))) {
-      _path = new Path(FilenameUtils.getPath(FilenameUtils.getFullPathNoEndSeparator(newPath)));
+      _path = new Path(FilenameUtils.getFullPath(FilenameUtils.getFullPathNoEndSeparator(newPath)));
     } else {
-      _path = new Path(FilenameUtils.getPath(newPath));
+      _path = new Path(FilenameUtils.getFullPath(newPath));
     }
 
     if(mkdir) {
