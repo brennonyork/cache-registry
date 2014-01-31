@@ -122,7 +122,7 @@ public abstract class CacheRegistry {
   public List<String> list(String path) {
     if(StringUtils.isBlank(path)) {
       logBadPath("listFiles");
-      return null;
+      return new ArrayList<String>();
     }
 
     if(isFile(path)) {
@@ -146,14 +146,14 @@ public abstract class CacheRegistry {
           return _directoryRegistry.get(path).list();
         } else {
           logRegistrationFailed("directory", path);
-          return null;
+          return new ArrayList<String>();
         }
       }
     } else {
       logBadType(path);
     }
 
-    return null;
+    return new ArrayList<String>();
   }
 
   /**
