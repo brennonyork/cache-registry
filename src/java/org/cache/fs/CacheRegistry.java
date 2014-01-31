@@ -113,6 +113,13 @@ public abstract class CacheRegistry {
   }
 
   /**
+     * @return true or false given whether the path is a file or directory
+     */
+  public Boolean exists(String path) {
+    return (isFile(path) || isDirectory(path));
+  }
+
+  /**
      * Return the list of files for the given path provided
      *
      * @return If a directory is given, then all objects under the directory will be returned
