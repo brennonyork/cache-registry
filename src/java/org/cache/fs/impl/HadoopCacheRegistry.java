@@ -26,6 +26,7 @@ public class HadoopCacheRegistry extends CacheRegistry {
 
   private static FileSystem _fs = null;
   private Path _path = null;
+	private static final String HADOOP_COPYING_SUFFIX = "_COPYING_";
 
   public HadoopCacheRegistry() throws IOException {
     this(new Configuration());
@@ -361,7 +362,11 @@ public class HadoopCacheRegistry extends CacheRegistry {
       }
 
       for(FileStatus f : files) {
-        paths.add(f.getPath().toString());
+				String pathString = f.getPath().toString();
+				/** only show full files */
+				if(!pathString.endsWith(HADOOP_COPYING_SUFFIX)){
+					paths.add(f.getPath().toString());
+				}
       }
 
       return paths;
