@@ -120,6 +120,13 @@ public abstract class CacheRegistry {
   }
 
   /**
+     * @return true if path was removed, false otherwise
+     */
+  public Boolean delete(String path) {
+    return deletePath(path);
+  }
+
+  /**
      * Return the list of files for the given path provided
      *
      * @return If a directory is given, then all objects under the directory will be returned
@@ -408,6 +415,14 @@ public abstract class CacheRegistry {
      * Close any resources instantiated with the CacheRegistry object
      */
   protected abstract void close();
+
+  /**
+     * Will delete files or directories passed in. In the case of directories it will be removed
+     * recursively
+     *
+     * @return true if the path was deleted successfully, false otherwise
+     */
+  protected abstract Boolean deletePath(String path);
 
   /**
      * @return Either the boolean value of true or false if the path is a file, otherwise null

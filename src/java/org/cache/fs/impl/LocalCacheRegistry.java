@@ -38,6 +38,10 @@ public class LocalCacheRegistry extends CacheRegistry {
     return new File(path).isDirectory();
   }
 
+  public Boolean deletePath(String path) {
+    return new File(path).delete();
+  }
+
   /**
      * newPath can come in as:
      *   - a.txt      ->> file

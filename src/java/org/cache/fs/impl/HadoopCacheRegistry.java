@@ -51,16 +51,25 @@ public class HadoopCacheRegistry extends CacheRegistry {
     try {
       return _fs.isFile(new Path(path));
     } catch(IOException e) {
-      log.warn("Could not determine file from path "+path+" (does it exist?); error at: "+e.getLocalizedMessage());
+      log.warn("Could not determine file from path "+path+" (does it exist?); "+e.getLocalizedMessage());
       return false;
     }
   }
 
   public Boolean isDirectory(String path) {
     try {
-      return _fs.getFileStatus(new Path(path)).isDirectory();
+      return _fs.isDirectory(new Path(path));
     } catch(IOException e) {
-      log.warn("Could not get FileStatus object from path "+path+" as directory (does it exist?); error at: "+e.getLocalizedMessage());
+      log.warn("Could not get FileStatus object from path "+path+" as directory (does it exist?); "+e.getLocalizedMessage());
+      return false;
+    }
+  }
+
+  public Boolean deletePath(String path) {
+    try {
+      return _fs.delete(new Path(path), true);
+    } catch(IOException e) {
+      log.warn("Could not get FileStatus object from path "+path+" for deletion (does it exist?); "+e.getLocalizedMessage());
       return false;
     }
   }
