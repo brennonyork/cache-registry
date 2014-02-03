@@ -274,18 +274,14 @@ public class HadoopCacheRegistry extends CacheRegistry {
 				return true;
       }
 
-			log.warn("last mod time = " + String.valueOf(_lastModTime) + " current mod time = " + String.valueOf(stat.getModificationTime()));
       if(_lastModTime != stat.getModificationTime()) {
-				log.warn("path " + _path + " is stale!");
         return true;
       } else {
-				log.warn("path " + _path + " is not stale");
         return false;
       }
     }
 
     public void setStaleFlag() {
-			log.warn("resetting stale flag for " + _path);
 			FileStatus stat = null;
       try {
         stat = _fs.getFileStatus(_path);
