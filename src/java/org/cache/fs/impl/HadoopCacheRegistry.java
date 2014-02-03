@@ -243,7 +243,6 @@ public class HadoopCacheRegistry extends CacheRegistry {
   public class HadoopFile implements CachedFile {
     private Path _path = null;
     private FileSystem _fs = null;
-    private FileStatus _stat = null;
     private InputStream _fStream = null;
     private long _lastModTime;
 
@@ -251,29 +250,50 @@ public class HadoopCacheRegistry extends CacheRegistry {
       _path = path;
       _fs = fs;
 
+			FileStatus stat = null;
       try {
-        _stat = _fs.getFileStatus(_path);
+        stat = _fs.getFileStatus(_path);
       } catch(IOException e) {
-        throw new IOException("Could not get FileStatus object from path "+_path+"; error at: "+e.getLocalizedMessage());
+				log.warn("Could not get FileStatus object from path "+_path);
+				throw e;
       }
 
-      if(_stat.isDirectory()) {
+      if(stat.isDirectory()) {
         throw new IOException("Attempted to create a CachedFile, but was given a directory path at "+path+".");
       }
 
-      _lastModTime = _stat.getModificationTime();
+      _lastModTime = stat.getModificationTime();
     }
 
     public boolean isStale() {
-      if(_lastModTime != _stat.getModificationTime()) {
+			FileStatus stat = null;
+      try {
+        stat = _fs.getFileStatus(_path);
+      } catch(IOException e) {
+				log.error("Could not get FileStatus object from path "+_path);
+				return true;
+      }
+
+			log.warn("last mod time = " + String.valueOf(_lastModTime) + " current mod time = " + String.valueOf(stat.getModificationTime()));
+      if(_lastModTime != stat.getModificationTime()) {
+				log.warn("path " + _path + " is stale!");
         return true;
       } else {
+				log.warn("path " + _path + " is not stale");
         return false;
       }
     }
 
     public void setStaleFlag() {
-      _lastModTime = _stat.getModificationTime();
+			log.warn("resetting stale flag for " + _path);
+			FileStatus stat = null;
+      try {
+        stat = _fs.getFileStatus(_path);
+      } catch(IOException e) {
+				log.error("Could not get FileStatus object from path "+_path);
+				return;
+      }
+      _lastModTime = stat.getModificationTime();
     }
 
     public InputStream cachedInputStream() {
@@ -339,25 +359,25 @@ public class HadoopCacheRegistry extends CacheRegistry {
   public class HadoopDirectory implements CachedDirectory {
     private Path _path = null;
     private FileSystem _fs = null;
-    private FileStatus _stat = null;
     private long _lastModTime;
 
     public HadoopDirectory(Path path, FileSystem fs) throws IOException {
       _path = path;
       _fs = fs;
 
+			FileStatus stat = null;
       try {
-        _stat = _fs.getFileStatus(_path);
+        stat = _fs.getFileStatus(_path);
       } catch(IOException e) {
 				log.error("Could not get FileStatus object from file "+_path);
 				throw e;
       }
 
-      if(!_stat.isDirectory()) {
+      if(!stat.isDirectory()) {
         throw new IOException("Attempted to create a CachedDirectory, but was given a file path at "+path+".");
       }
 
-      _lastModTime = _stat.getModificationTime();
+      _lastModTime = stat.getModificationTime();
     }
 
     public List<String> list() {
@@ -382,7 +402,15 @@ public class HadoopCacheRegistry extends CacheRegistry {
     }
 
     public boolean isStale() {
-      if(_lastModTime != _stat.getModificationTime()) {
+			FileStatus stat = null;
+      try {
+        stat = _fs.getFileStatus(_path);
+      } catch(IOException e) {
+				log.error("Could not get FileStatus object from file "+_path);
+				return true;
+      }
+
+      if(_lastModTime != stat.getModificationTime()) {
         return true;
       } else {
         return false;
@@ -390,7 +418,15 @@ public class HadoopCacheRegistry extends CacheRegistry {
     }
 
     public void setStaleFlag() {
-      _lastModTime = _stat.getModificationTime();
+			FileStatus stat = null;
+      try {
+        stat = _fs.getFileStatus(_path);
+      } catch(IOException e) {
+				log.error("Could not get FileStatus object from file "+_path);
+				return;
+      }
+
+      _lastModTime = stat.getModificationTime();
     }
   }
 }
